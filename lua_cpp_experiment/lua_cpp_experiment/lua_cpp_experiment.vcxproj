@@ -117,7 +117,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\lua\luaJIT\include\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\lua\luaJIT\include\;.\lua\sol2\include\;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,6 +152,9 @@
     <ClInclude Include="luaJIT\include\luaconf.h" />
     <ClInclude Include="luaJIT\include\luajit.h" />
     <ClInclude Include="luaJIT\include\lualib.h" />
+    <ClInclude Include="lua\sol2\include\config.hpp" />
+    <ClInclude Include="lua\sol2\include\forward.hpp" />
+    <ClInclude Include="lua\sol2\include\sol.hpp" />
     <ClInclude Include="lua_helper.h" />
   </ItemGroup>
   <ItemGroup>

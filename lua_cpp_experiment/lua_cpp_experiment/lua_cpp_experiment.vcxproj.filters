@@ -4,27 +4,42 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="luaJIT">
+    <Filter Include="lua">
+      <UniqueIdentifier>{4ee2e127-7410-41a4-82b9-6e6ac71d5b68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua\luaJIT">
       <UniqueIdentifier>{89cb7da7-58d4-43ab-b65e-e79ece4e9479}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua\sol2">
+      <UniqueIdentifier>{c6ba5a7a-f5ac-43bc-b763-0fa44e3a85b6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="luaJIT\include\lauxlib.h">
-      <Filter>luaJIT</Filter>
+      <Filter>lua\luaJIT</Filter>
     </ClInclude>
     <ClInclude Include="luaJIT\include\lua.h">
-      <Filter>luaJIT</Filter>
+      <Filter>lua\luaJIT</Filter>
     </ClInclude>
     <ClInclude Include="luaJIT\include\luaconf.h">
-      <Filter>luaJIT</Filter>
+      <Filter>lua\luaJIT</Filter>
     </ClInclude>
     <ClInclude Include="luaJIT\include\luajit.h">
-      <Filter>luaJIT</Filter>
+      <Filter>lua\luaJIT</Filter>
     </ClInclude>
     <ClInclude Include="luaJIT\include\lualib.h">
-      <Filter>luaJIT</Filter>
+      <Filter>lua\luaJIT</Filter>
     </ClInclude>
     <ClInclude Include="lua_helper.h" />
+    <ClInclude Include="lua\sol2\include\config.hpp">
+      <Filter>lua\sol2</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\sol2\include\forward.hpp">
+      <Filter>lua\sol2</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\sol2\include\sol.hpp">
+      <Filter>lua\sol2</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="experiment.lua" />
