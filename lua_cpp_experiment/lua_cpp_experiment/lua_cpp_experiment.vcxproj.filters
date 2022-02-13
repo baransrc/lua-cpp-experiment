@@ -40,6 +40,7 @@
     <ClInclude Include="lua\sol2\include\sol.hpp">
       <Filter>lua\sol2</Filter>
     </ClInclude>
+    <ClInclude Include="assert.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="experiment.lua" />

@@ -147,6 +147,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="assert.hpp" />
     <ClInclude Include="luaJIT\include\lauxlib.h" />
     <ClInclude Include="luaJIT\include\lua.h" />
     <ClInclude Include="luaJIT\include\luaconf.h" />

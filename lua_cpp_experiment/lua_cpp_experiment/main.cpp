@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "lua_helper.h"
+//#include "assert.hpp"
 
 // Little error checking utility function
 bool check_lua(lua_State* L, int result)
@@ -16,7 +17,7 @@ bool check_lua(lua_State* L, int result)
 	return true;
 }
 
-int main()
+void vanilla_lua_test()
 {
 	// Create lua state:
 	lua_State* L = luaL_newstate();
@@ -29,9 +30,7 @@ int main()
 		// Close and free lua_State L:
 		lua_close(L);
 
-		system("pause");
-
-		return 0;
+		return;
 	}
 
 	std::cout << "Hello World from CPP" << std::endl;
@@ -55,8 +54,37 @@ int main()
 
 	// Close and free lua_State L:
 	lua_close(L);
+}
+
+int main()
+{
+	sol::state lua;
+
+	// Enable base libraries:
+	lua.open_libraries(sol::lib::base);
+
+	std::string script_file_name = "experiment.lua";
+
+	// Load script file:
+	sol::load_result load_result = lua.load_file(script_file_name);
+
+	// If the loaded script has errors, display it:
+	if (!load_result.valid())
+	{
+		sol::error error = load_result;
+		std::cerr << "Failed to load " << script_file_name << " " << error.what() << std::endl;
+
+		system("pause");
+		return 0;
+	}
+	// Run the script:
+	load_result();
+
+	// Run the print_test function of the script:
+	lua["print_test"]();
+
+	//std::cout << "Lua gives: " << lua_return << " to CPP." << std::endl;
 
 	system("pause");
-
 	return 0;
 }
