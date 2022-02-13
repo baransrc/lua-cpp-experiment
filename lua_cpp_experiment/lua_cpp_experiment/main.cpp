@@ -101,6 +101,10 @@ int main()
 	// Run the execute method of the script:
 	lua["execute"]();
 
+	// Test if script really changed entity:
+	std::cout << std::endl << "------------" << std::endl;
+	std::cout << "Result from CPP: " << entity->GetComponent<ComponentY>()->GetYValue() << std::endl;
+
 	system("pause");
 	return 0;
 }
