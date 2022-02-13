@@ -41,6 +41,7 @@
       <Filter>lua\sol2</Filter>
     </ClInclude>
     <ClInclude Include="assert.hpp" />
+    <ClInclude Include="entity_component.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="experiment.lua" />

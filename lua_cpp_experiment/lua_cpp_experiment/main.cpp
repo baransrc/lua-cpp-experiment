@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include "lua_helper.h"
+#include "entity_component.h"
+
 //#include "assert.hpp"
 
 // Little error checking utility function
@@ -80,10 +82,24 @@ int main()
 	// Run the script:
 	load_result();
 
-	// Run the print_test function of the script:
-	lua["print_test"]();
+	// Create Entity namespace:
+	sol::table this_namespace = lua["this"].get_or_create<sol::table>();
 
-	//std::cout << "Lua gives: " << lua_return << " to CPP." << std::endl;
+	// Add entity and components to lua:
+	component_type_to_lua(this_namespace);
+	component_to_lua(this_namespace);
+	component_x_to_lua(this_namespace);
+	component_y_to_lua(this_namespace);
+	entity_to_lua(this_namespace);
+
+	// Create an entity:
+	Entity* entity = new Entity();
+
+	// Add the api to interact with entity to namespace:
+	this_namespace.set("entity", entity);
+
+	// Run the execute method of the script:
+	lua["execute"]();
 
 	system("pause");
 	return 0;
