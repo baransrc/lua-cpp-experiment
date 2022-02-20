@@ -173,7 +173,7 @@ public:
 		std::cout << "ComponentY::Initialize" << std::endl;
 
 		Component::Initialize(new_owner);
-	}
+	}		
 
 	virtual ComponentType GetType()
 	{
@@ -281,6 +281,7 @@ void entity_to_lua(sol::table& table)
 	table.new_usertype<Entity>
 		(
 			"Entity",
+			"ID", &Entity::id,
 			"AddComponentX", &Entity::AddComponent<ComponentX>,
 			"GetComponentX", &Entity::GetComponent<ComponentX>,
 			"AddComponentY", &Entity::AddComponent<ComponentY>,

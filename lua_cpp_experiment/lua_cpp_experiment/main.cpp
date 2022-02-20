@@ -3,9 +3,6 @@
 #include "lua_helper.h"
 #include "entity_component.h"
 
-//#include "assert.hpp"
-
-// Little error checking utility function
 bool check_lua(lua_State* L, int result)
 {
 	if (result != 0)
@@ -58,16 +55,68 @@ void vanilla_lua_test()
 	lua_close(L);
 }
 
+void print_panic(sol::optional<std::string> maybe_msg) {
+	std::cerr << "Lua is in a panic state and will now abort() the application" << std::endl;
+	if (maybe_msg)
+	{
+		const std::string& msg = maybe_msg.value();
+		std::cerr << "\terror message: " << msg << std::endl;
+	}
+	// When this function exits, Lua will exhibit default behavior and abort()
+}
+
 int main()
 {
-	sol::state lua;
+	sol::state lua(sol::c_call<decltype(&print_panic), &print_panic>);
 
 	// Enable base libraries:
-	lua.open_libraries(sol::lib::base);
+	lua.open_libraries
+	(
+		sol::lib::base, 
+		sol::lib::package, 
+		sol::lib::debug, 
+		sol::lib::string, 
+		sol::lib::io, 
+		sol::lib::coroutine, 
+		sol::lib::os, 
+		sol::lib::table, 
+		sol::lib::math
+	);
 
-	std::string script_file_name = "experiment.lua";
+	// TODO: Get these runtime, and relative to working directory.
+	std::string script_file_name = "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/scripts/experiment.lua";
+	std::string zbs_lib_path = "C:/ZeroBrane";
+	
+	std::string path = "";
+	path += "package.path = ";
+	path += "\"";
+	path += "./?.lua;";
+	path += zbs_lib_path + "/lualibs/?/?.lua;";
+	path += zbs_lib_path + "/lualibs/?.lua;";
+	path += "\"";
+	path += "..package.path";
 
-	// Load script file:
+	std::string c_path = "";
+	c_path += "package.cpath = ";
+	c_path += "\"";
+	// TODO: Get these runtime, and relative to working directory.
+	c_path += "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/lua/luaJIT/lib/?.dll;";
+	c_path += "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/lua/lua_socket/bin/?.dll;";
+	c_path += "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/lua/lua_socket/bin/clibs/?.dll;";
+	c_path += "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/lua/lua_socket/bin/clibs/mime/?.dll;";
+	c_path += "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/lua/lua_socket/bin/clibs/socket/?.dll;";
+	c_path += zbs_lib_path + "/bin/?.dll;";
+	c_path += zbs_lib_path + "/bin/clibs/?.dll";
+	c_path += "\"";
+	c_path += "..package.cpath";
+
+	// Add lua file and dll file checkup paths to the script:
+	// We don't need to check if these files are valid since 
+	// we statically run these from code instead of loading it
+	// from file.
+	lua.do_string(c_path);
+	lua.do_string(path);
+
 	sol::load_result load_result = lua.load_file(script_file_name);
 
 	// If the loaded script has errors, display it:
@@ -83,7 +132,7 @@ int main()
 	load_result();
 
 	// Create Entity namespace:
-	sol::table this_namespace = lua["this"].get_or_create<sol::table>();
+	sol::table this_namespace = lua["hachiko"].get_or_create<sol::table>();
 
 	// Add entity and components to lua:
 	component_type_to_lua(this_namespace);
@@ -99,12 +148,22 @@ int main()
 	this_namespace.set("entity", entity);
 
 	// Run the execute method of the script:
-	lua["execute"]();
+	sol::protected_function_result script_result = lua["execute"]();
+
+	// If an error comes up, print to the screen and halt the
+	// execution:
+	if (!script_result.valid()) 
+	{
+		sol::error error = script_result;
+		std::cout << "[ERROR-LUA]: " << error.what() << std::endl;
+		std::cin.ignore();
+		return 0;
+	}
 
 	// Test if script really changed entity:
 	std::cout << std::endl << "------------" << std::endl;
 	std::cout << "Result from CPP: " << entity->GetComponent<ComponentY>()->GetYValue() << std::endl;
 
-	system("pause");
+	std::cin.ignore();
 	return 0;
 }
