@@ -83,9 +83,25 @@ int main()
 		sol::lib::math
 	);
 
+	sol::load_result settings_load_result = lua.load_file("settings.lua");
+
+	// If the loaded script has errors, display it:
+	if (!settings_load_result.valid())
+	{
+		sol::error error = settings_load_result;
+		std::cerr << "Failed to load settings: " << error.what() << std::endl;
+
+		system("pause");
+		return 0;
+	}
+	// Run the settings script:
+	settings_load_result();
+
 	// TODO: Get these runtime, and relative to working directory.
-	std::string script_file_name = "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/scripts/experiment.lua";
-	std::string zbs_lib_path = "C:/ZeroBrane";
+	std::string project_path = lua["project_path"];
+	std::string script_file_name = lua["script_file_name"];
+	std::string lua_path = lua["lua_path"];
+	std::string zbs_lib_path = lua["zbs_lib_path"];
 	
 	std::string path = "";
 	path += "package.path = ";
@@ -100,11 +116,11 @@ int main()
 	c_path += "package.cpath = ";
 	c_path += "\"";
 	// TODO: Get these runtime, and relative to working directory.
-	c_path += "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/lua/luaJIT/lib/?.dll;";
-	c_path += "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/lua/lua_socket/bin/?.dll;";
-	c_path += "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/lua/lua_socket/bin/clibs/?.dll;";
-	c_path += "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/lua/lua_socket/bin/clibs/mime/?.dll;";
-	c_path += "R:/lua-cpp-experiment/lua_cpp_experiment/lua_cpp_experiment/lua/lua_socket/bin/clibs/socket/?.dll;";
+	c_path += lua_path + "/luaJIT/lib/?.dll;";
+	c_path += lua_path + "/lua_socket/bin/?.dll;";
+	c_path += lua_path + "/lua_socket/bin/clibs/?.dll;";
+	c_path += lua_path + "/lua_socket/bin/clibs/mime/?.dll;";
+	c_path += lua_path + "/lua_socket/bin/clibs/socket/?.dll;";
 	c_path += zbs_lib_path + "/bin/?.dll;";
 	c_path += zbs_lib_path + "/bin/clibs/?.dll";
 	c_path += "\"";
