@@ -71,6 +71,11 @@ public:
 	}
 };
 
+std::string component_lua_to_string(Component* component)
+{
+	return "Deneme";
+}
+
 void component_to_lua(sol::table& table)
 {
 	std::cout << "Component::ToLua" << std::endl;
@@ -81,10 +86,10 @@ void component_to_lua(sol::table& table)
 			"Initialize", &Component::Initialize,
 			"SetStuff", &Component::SetStuff,
 			"DoStuff", &Component::DoStuff,
-			"GetType", &Component::GetType
+			"GetType", &Component::GetType,
+			sol::meta_method::to_string, &component_lua_to_string
 		);
 }
-
 
 class ComponentX : public Component
 {
@@ -148,7 +153,8 @@ void component_x_to_lua(sol::table& table)
 			"DoStuff", &ComponentX::DoStuff,
 			"GetType", &ComponentX::GetType,
 			"GetXValue", &ComponentX::GetXValue,
-			"SetXValue", &ComponentX::SetXValue
+			"SetXValue", &ComponentX::SetXValue,
+			sol::meta_method::to_string, [] {return "this should be visible in ide"; }
 		);
 }
 
