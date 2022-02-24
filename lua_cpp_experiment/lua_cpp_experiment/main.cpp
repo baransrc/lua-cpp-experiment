@@ -72,14 +72,14 @@ int main()
 	// Enable base libraries:
 	lua.open_libraries
 	(
-		sol::lib::base, 
-		sol::lib::package, 
-		sol::lib::debug, 
-		sol::lib::string, 
-		sol::lib::io, 
-		sol::lib::coroutine, 
-		sol::lib::os, 
-		sol::lib::table, 
+		sol::lib::base,
+		sol::lib::package,
+		sol::lib::debug,
+		sol::lib::string,
+		sol::lib::io,
+		sol::lib::coroutine,
+		sol::lib::os,
+		sol::lib::table,
 		sol::lib::math
 	);
 
@@ -102,7 +102,7 @@ int main()
 	std::string script_file_name = lua["script_file_name"];
 	std::string lua_path = lua["lua_path"];
 	std::string zbs_lib_path = lua["zbs_lib_path"];
-	
+
 	std::string path = "";
 	path += "package.path = ";
 	path += "\"";
@@ -164,7 +164,8 @@ int main()
 	this_namespace.set("entity", entity);
 
 	// Run the execute method of the script:
-	sol::protected_function_result script_result = lua["execute"]();
+	sol::table experiment_table = lua["experiment"];
+	sol::protected_function_result script_result = experiment_table["execute"]();
 
 	// If an error comes up, print to the screen and halt the
 	// execution:
@@ -179,6 +180,36 @@ int main()
 	// Test if script really changed entity:
 	std::cout << std::endl << "------------" << std::endl;
 	std::cout << "Result from CPP: " << entity->GetComponent<ComponentY>()->GetYValue() << std::endl;
+
+
+	// Create another lua state:
+	sol::state another_lua;
+	
+	// Enable libraries for that lua state:
+	another_lua.open_libraries
+	(
+		sol::lib::base,
+		sol::lib::package,
+		sol::lib::debug,
+		sol::lib::string,
+		sol::lib::io,
+		sol::lib::coroutine,
+		sol::lib::os,
+		sol::lib::table,
+		sol::lib::math
+	);
+
+	another_lua.set("experiment_instance", experiment_table);
+
+	sol::function_result result = another_lua.do_string("require(\"experiment\")\nprint(experiment_instance.name)");
+
+	if (!result.valid())
+	{
+		sol::error error = result;
+		std::cout << "[ERROR-LUA]: " << error.what() << std::endl;
+		std::cin.ignore();
+		return 0;
+	}
 
 	std::cin.ignore();
 	return 0;
