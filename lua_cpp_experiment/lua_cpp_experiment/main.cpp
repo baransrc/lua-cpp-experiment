@@ -182,34 +182,42 @@ int main()
 	std::cout << "Result from CPP: " << entity->GetComponent<ComponentY>()->GetYValue() << std::endl;
 
 
-	// Create another lua state:
-	sol::state another_lua;
-	
-	// Enable libraries for that lua state:
-	another_lua.open_libraries
-	(
-		sol::lib::base,
-		sol::lib::package,
-		sol::lib::debug,
-		sol::lib::string,
-		sol::lib::io,
-		sol::lib::coroutine,
-		sol::lib::os,
-		sol::lib::table,
-		sol::lib::math
-	);
+	sol::table experiment_script_table = lua["experiment"];
 
-	another_lua.set("experiment_instance", experiment_table);
-
-	sol::function_result result = another_lua.do_string("require(\"experiment\")\nprint(experiment_instance.name)");
-
-	if (!result.valid())
-	{
-		sol::error error = result;
-		std::cout << "[ERROR-LUA]: " << error.what() << std::endl;
-		std::cin.ignore();
-		return 0;
+	for (auto entry : experiment_script_table)
+	{	
+		std::cout << (entry.first.as<std::string>()) << std::endl;
+		std::cout << (entry.second.is<sol::function>() ? "true" : "false") << std::endl;
 	}
+
+	//// Create another lua state:
+	//sol::state another_lua;
+	//
+	//// Enable libraries for that lua state:
+	//another_lua.open_libraries
+	//(
+	//	sol::lib::base,
+	//	sol::lib::package,
+	//	sol::lib::debug,
+	//	sol::lib::string,
+	//	sol::lib::io,
+	//	sol::lib::coroutine,
+	//	sol::lib::os,
+	//	sol::lib::table,
+	//	sol::lib::math
+	//);
+
+	//another_lua.set("experiment_instance", experiment_table);
+
+	//sol::function_result result = another_lua.do_string("require(\"experiment\")\nprint(experiment_instance.name)");
+
+	//if (!result.valid())
+	//{
+	//	sol::error error = result;
+	//	std::cout << "[ERROR-LUA]: " << error.what() << std::endl;
+	//	std::cin.ignore();
+	//	return 0;
+	//}
 
 	std::cin.ignore();
 	return 0;
