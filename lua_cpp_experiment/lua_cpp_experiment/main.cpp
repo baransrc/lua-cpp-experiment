@@ -109,6 +109,7 @@ int main()
 	path += "./?.lua;";
 	path += zbs_lib_path + "/lualibs/?/?.lua;";
 	path += zbs_lib_path + "/lualibs/?.lua;";
+	path += project_path + "/lua-cpp-experiment/scripts/?.lua;";
 	path += "\"";
 	path += "..package.path";
 
@@ -181,43 +182,67 @@ int main()
 	std::cout << std::endl << "------------" << std::endl;
 	std::cout << "Result from CPP: " << entity->GetComponent<ComponentY>()->GetYValue() << std::endl;
 
+	// Create another lua state:
+	sol::state another_lua;
+	
+	// Enable libraries for that lua state:
+	another_lua.open_libraries
+	(
+		sol::lib::base,
+		sol::lib::package,
+		sol::lib::debug,
+		sol::lib::string,
+		sol::lib::io,
+		sol::lib::coroutine,
+		sol::lib::os,
+		sol::lib::table,
+		sol::lib::math
+	);
 
-	sol::table experiment_script_table = lua["experiment"];
+	sol::table another_namespace = another_lua["hachiko"].get_or_create<sol::table>();
+
+	// Add entity and components to lua:
+	component_type_to_lua(another_namespace);
+	component_to_lua(another_namespace);
+	component_x_to_lua(another_namespace);
+	component_y_to_lua(another_namespace);
+	entity_to_lua(another_namespace);
+
+	std::string table_name = "experiment";
+	sol::table experiment_script_table = lua[table_name];
+	sol::table other_script_table = another_lua["ExperimentScript"].get_or_create<sol::table>();
+
+	std::cout << "Adding the experiment script table member functions to another script which runs the functions from experiment.lua" << std::endl;
 
 	for (auto entry : experiment_script_table)
-	{	
-		std::cout << (entry.first.as<std::string>()) << std::endl;
-		std::cout << (entry.second.is<sol::function>() ? "true" : "false") << std::endl;
+	{
+		const sol::object& current_object = entry.second;
+
+		if (!current_object.is<sol::function>())
+		{
+			continue;
+		}
+
+		const std::string& function_name = entry.first.as<std::string>();
+
+		std::cout << "Adding: " << function_name << std::endl;
+
+		sol::function function = experiment_script_table[function_name];
+
+		other_script_table.set_function(function_name, function);
 	}
 
-	//// Create another lua state:
-	//sol::state another_lua;
-	//
-	//// Enable libraries for that lua state:
-	//another_lua.open_libraries
-	//(
-	//	sol::lib::base,
-	//	sol::lib::package,
-	//	sol::lib::debug,
-	//	sol::lib::string,
-	//	sol::lib::io,
-	//	sol::lib::coroutine,
-	//	sol::lib::os,
-	//	sol::lib::table,
-	//	sol::lib::math
-	//);
+	another_lua["ExperimentScript"].set(other_script_table);
 
-	//another_lua.set("experiment_instance", experiment_table);
+	sol::function_result result = another_lua.do_string("ExperimentScript:execute()");
 
-	//sol::function_result result = another_lua.do_string("require(\"experiment\")\nprint(experiment_instance.name)");
-
-	//if (!result.valid())
-	//{
-	//	sol::error error = result;
-	//	std::cout << "[ERROR-LUA]: " << error.what() << std::endl;
-	//	std::cin.ignore();
-	//	return 0;
-	//}
+	if (!result.valid())
+	{
+		sol::error error = result;
+		std::cout << "[ERROR-LUA]: " << error.what() << std::endl;
+		std::cin.ignore();
+		return 0;
+	}
 
 	std::cin.ignore();
 	return 0;

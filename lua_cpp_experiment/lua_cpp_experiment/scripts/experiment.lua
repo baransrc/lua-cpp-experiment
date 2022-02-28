@@ -4,7 +4,7 @@ experiment = {
 }
 
 function experiment:execute()
-  require('mobdebug').start()
+  -- require('mobdebug').start()
   -- Add x and y components to the entity we have
   -- by calling AddComponent<ComponentX> and 
   -- AddComponent<ComponentY> of Entitiy:
