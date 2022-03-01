@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="script.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assert.hpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="lua\sol2\include\forward.hpp" />
     <ClInclude Include="lua\sol2\include\sol.hpp" />
     <ClInclude Include="lua_helper.h" />
+    <ClInclude Include="script.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="experiment.lua" />

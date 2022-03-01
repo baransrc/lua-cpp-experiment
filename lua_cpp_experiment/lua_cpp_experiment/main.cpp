@@ -1,69 +1,60 @@
 #include <iostream>
 
-#include "lua_helper.h"
 #include "entity_component.h"
+#include "lua_helper.h"
+#include "script.h"
 
-bool check_lua(lua_State* L, int result)
-{
-	if (result != 0)
-	{
-		std::string error_message = lua_tostring(L, -1);
-		std::cout << error_message << std::endl;
-
-		return false;
-	}
-
-	return true;
-}
-
-void vanilla_lua_test()
-{
-	// Create lua state:
-	lua_State* L = luaL_newstate();
-
-	// Load all lua libraries:
-	luaL_openlibs(L);
-
-	if (!check_lua(L, luaL_dofile(L, "experiment.lua")))
-	{
-		// Close and free lua_State L:
-		lua_close(L);
-
-		return;
-	}
-
-	std::cout << "Hello World from CPP" << std::endl;
-
-	// Try getting the "box" called print_test on the
-	// top of the stack:
-	lua_getglobal(L, "print_test");
-
-	// Check if top of the stack is a function:
-	// NOTE: In lua we have indexed stack, and the top
-	// of the stack is -1.
-	if (lua_isfunction(L, -1))
-	{
-		// Run the function and if there is a problem
-		// log the error message given by lua:
-		if (check_lua(L, lua_pcall(L, 0, 0, 0)))
-		{
-			std::cout << "This works my dude" << std::endl;
-		}
-	}
-
-	// Close and free lua_State L:
-	lua_close(L);
-}
-
-void print_panic(sol::optional<std::string> maybe_msg) {
-	std::cerr << "Lua is in a panic state and will now abort() the application" << std::endl;
-	if (maybe_msg)
-	{
-		const std::string& msg = maybe_msg.value();
-		std::cerr << "\terror message: " << msg << std::endl;
-	}
-	// When this function exits, Lua will exhibit default behavior and abort()
-}
+//bool check_lua(lua_State* L, int result)
+//{
+//	if (result != 0)
+//	{
+//		std::string error_message = lua_tostring(L, -1);
+//		std::cout << error_message << std::endl;
+//
+//		return false;
+//	}
+//
+//	return true;
+//}
+//
+//void vanilla_lua_test()
+//{
+//	// Create lua state:
+//	lua_State* L = luaL_newstate();
+//
+//	// Load all lua libraries:
+//	luaL_openlibs(L);
+//
+//	if (!check_lua(L, luaL_dofile(L, "experiment.lua")))
+//	{
+//		// Close and free lua_State L:
+//		lua_close(L);
+//
+//		return;
+//	}
+//
+//	std::cout << "Hello World from CPP" << std::endl;
+//
+//	// Try getting the "box" called print_test on the
+//	// top of the stack:
+//	lua_getglobal(L, "print_test");
+//
+//	// Check if top of the stack is a function:
+//	// NOTE: In lua we have indexed stack, and the top
+//	// of the stack is -1.
+//	if (lua_isfunction(L, -1))
+//	{
+//		// Run the function and if there is a problem
+//		// log the error message given by lua:
+//		if (check_lua(L, lua_pcall(L, 0, 0, 0)))
+//		{
+//			std::cout << "This works my dude" << std::endl;
+//		}
+//	}
+//
+//	// Close and free lua_State L:
+//	lua_close(L);
+//}
 
 int main()
 {
@@ -134,115 +125,132 @@ int main()
 	lua.do_string(c_path);
 	lua.do_string(path);
 
-	sol::load_result load_result = lua.load_file(script_file_name);
-
-	// If the loaded script has errors, display it:
-	if (!load_result.valid())
-	{
-		sol::error error = load_result;
-		std::cerr << "Failed to load " << script_file_name << " " << error.what() << std::endl;
-
-		system("pause");
-		return 0;
-	}
-	// Run the script:
-	load_result();
-
-	// Create Entity namespace:
-	sol::table this_namespace = lua["hachiko"].get_or_create<sol::table>();
-
-	// Add entity and components to lua:
-	component_type_to_lua(this_namespace);
-	component_to_lua(this_namespace);
-	component_x_to_lua(this_namespace);
-	component_y_to_lua(this_namespace);
-	entity_to_lua(this_namespace);
-
-	// Create an entity:
 	Entity* entity = new Entity();
 
-	// Add the api to interact with entity to namespace:
-	this_namespace.set("entity", entity);
+	LuaScript script_1(script_file_name, entity);
+	LuaScript script_2("experiment2.lua", entity);
 
-	// Run the execute method of the script:
-	sol::table experiment_table = lua["experiment"];
-	sol::protected_function_result script_result = experiment_table["execute"]();
+	sol::safe_function execute_function = script_1.GetAsTable()["execute"];
 
-	// If an error comes up, print to the screen and halt the
-	// execution:
-	if (!script_result.valid()) 
-	{
-		sol::error error = script_result;
-		std::cout << "[ERROR-LUA]: " << error.what() << std::endl;
-		std::cin.ignore();
-		return 0;
-	}
 
-	// Test if script really changed entity:
-	std::cout << std::endl << "------------" << std::endl;
-	std::cout << "Result from CPP: " << entity->GetComponent<ComponentY>()->GetYValue() << std::endl;
 
-	// Create another lua state:
-	sol::state another_lua;
-	
-	// Enable libraries for that lua state:
-	another_lua.open_libraries
-	(
-		sol::lib::base,
-		sol::lib::package,
-		sol::lib::debug,
-		sol::lib::string,
-		sol::lib::io,
-		sol::lib::coroutine,
-		sol::lib::os,
-		sol::lib::table,
-		sol::lib::math
-	);
+	//sol::load_result load_result = lua.load_file(script_file_name);
 
-	sol::table another_namespace = another_lua["hachiko"].get_or_create<sol::table>();
+	//// If the loaded script has errors, display it:
+	//if (!load_result.valid())
+	//{
+	//	sol::error error = load_result;
+	//	std::cerr << "Failed to load " << script_file_name << " " << error.what() << std::endl;
 
-	// Add entity and components to lua:
-	component_type_to_lua(another_namespace);
-	component_to_lua(another_namespace);
-	component_x_to_lua(another_namespace);
-	component_y_to_lua(another_namespace);
-	entity_to_lua(another_namespace);
+	//	system("pause");
+	//	return 0;
+	//}
+	//// Run the script:
+	//load_result();
 
-	std::string table_name = "experiment";
-	sol::table experiment_script_table = lua[table_name];
-	sol::table other_script_table = another_lua["ExperimentScript"].get_or_create<sol::table>();
+	//// Create Entity namespace:
+	//sol::table this_namespace = lua["hachiko"].get_or_create<sol::table>();
 
-	std::cout << "Adding the experiment script table member functions to another script which runs the functions from experiment.lua" << std::endl;
+	//// Add entity and components to lua:
+	//component_type_to_lua(this_namespace);
+	//component_to_lua(this_namespace);
+	//component_x_to_lua(this_namespace);
+	//component_y_to_lua(this_namespace);
+	//entity_to_lua(this_namespace);
 
-	for (auto entry : experiment_script_table)
-	{
-		const sol::object& current_object = entry.second;
+	//// Create an entity:
+	//Entity* entity = new Entity();
 
-		if (!current_object.is<sol::function>())
-		{
-			continue;
-		}
+	//// Add the api to interact with entity to namespace:
+	//this_namespace.set("entity", entity);
 
-		const std::string& function_name = entry.first.as<std::string>();
+	//// Run the execute method of the script:
+	//sol::table experiment_table = lua["experiment"];
+	//sol::protected_function_result script_result = experiment_table["execute"]();
 
-		std::cout << "Adding: " << function_name << std::endl;
+	//// If an error comes up, print to the screen and halt the
+	//// execution:
+	//if (!script_result.valid()) 
+	//{
+	//	sol::error error = script_result;
+	//	std::cout << "[ERROR-LUA]: " << error.what() << std::endl;
+	//	std::cin.ignore();
+	//	return 0;
+	//}
 
-		sol::function function = experiment_script_table[function_name];
+	//// Test if script really changed entity:
+	//std::cout << std::endl << "------------" << std::endl;
+	//std::cout << "Result from CPP: " << entity->GetComponent<ComponentY>()->GetYValue() << std::endl;
 
-		other_script_table.set_function(function_name, function);
-	}
+	//// Create another lua state:
+	//sol::state another_lua;
+	//
+	//// Enable libraries for that lua state:
+	//another_lua.open_libraries
+	//(
+	//	sol::lib::base,
+	//	sol::lib::package,
+	//	sol::lib::debug,
+	//	sol::lib::string,
+	//	sol::lib::io,
+	//	sol::lib::coroutine,
+	//	sol::lib::os,
+	//	sol::lib::table,
+	//	sol::lib::math
+	//);
 
-	another_lua["ExperimentScript"].set(other_script_table);
+	//another_lua.do_string(c_path);
+	//another_lua.do_string(path);
 
-	sol::function_result result = another_lua.do_string("ExperimentScript:execute()");
+	//sol::table another_namespace = another_lua["hachiko"].get_or_create<sol::table>();
 
-	if (!result.valid())
-	{
-		sol::error error = result;
-		std::cout << "[ERROR-LUA]: " << error.what() << std::endl;
-		std::cin.ignore();
-		return 0;
-	}
+	//// Add entity and components to lua:
+	//component_type_to_lua(another_namespace);
+	//component_to_lua(another_namespace);
+	//component_x_to_lua(another_namespace);
+	//component_y_to_lua(another_namespace);
+	//entity_to_lua(another_namespace);
+
+	//std::string table_name = "experiment";
+	//sol::table experiment_script_table = lua[table_name];
+	//sol::table other_script_table = another_lua["ExperimentScript"].get_or_create<sol::table>();
+
+	//std::cout << "Adding the experiment script table member functions to another script which runs the functions from experiment.lua" << std::endl;
+
+	//for (const auto& entry : experiment_script_table)
+	//{
+	//	const sol::object& current_object = entry.second;
+
+	//	if (!current_object.is<sol::function>())
+	//	{
+	//		continue;
+	//	}
+
+	//	const std::string& function_name = entry.first.as<std::string>();
+
+	//	std::cout << "Adding: " << function_name << std::endl;
+
+	//	sol::function function = experiment_script_table[function_name];
+
+	//	other_script_table.set_function(function_name, function);
+	//}
+
+	//// another_lua["ExperimentScript"].set(other_script_table);
+
+	//sol::protected_function_result result = another_lua.do_string("ExperimentScript:call_from_another_script(888, \"please work\")");
+
+	//if (!result.valid())
+	//{
+	//	sol::error error = result;
+	//	std::cout << "[ERROR-LUA]: " << error.what() << std::endl;
+	//	std::cin.ignore();
+	//	return 0;
+	//}
+
+	//std::string name = lua["experiment"]["name"];
+
+	//std::cout << name << std::endl;
+
 
 	std::cin.ignore();
 	return 0;

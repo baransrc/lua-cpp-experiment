@@ -1,5 +1,5 @@
 experiment = {
-  name = "fuck",
+  name = "this is a name",
   number = 69
 }
 
@@ -57,10 +57,11 @@ function experiment:execute()
 end
 
 function experiment:call_from_another_script(an_integer, a_string)
-  print("The previous values were: "..experiment.name.." and "..experiment.number)
+  self.name = "anena"
+  --print("The previous values were: "..self.name.." and "..self.number)
 
-  self.number = an_integer
-  self.name = a_string
+  --self.number = an_integer
+  --self.name = a_string
 
-  print("This was called from another script, well done, my dude. The values are "..experiment.name.." and "..experiment.number)
+  --print("This was called from another script, well done, my dude. The values are "..self.name.." and "..self.number)
 end
